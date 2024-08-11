@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAIVAS CHAP!CHAP!</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Add the app icon link -->
+    <link rel="icon" type="image/png" href="icon-512x512.png" sizes="512x512">
+    <link rel="apple-touch-icon" href="icon-512x512.png">
+    <!-- Link to the manifest file -->
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <h1>NAIVAS CHAP!CHAP!</h1>
+    <div id="you-qr-results"></div>
+    <h2>Scan QR Code</h2>
+    <div id="my-qr-reader" style="width: 100%;"></div>
+    <h3>Total: <span id="total">0</span> KSH</h3>
+    <button class="button" onclick="payNow()">PAY NOW</button>
+    <button class="button" onclick="generateReceipt()">Generate Receipt</button>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="customer.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+                console.log('Service Worker registered with scope:', registration.scope);
+            }).catch(function(error) {
+                console.log('Service Worker registration failed:', error);
+            });
+        }
+    </script>
+</body>
+</html>

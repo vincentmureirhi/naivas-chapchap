@@ -1,0 +1,22 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+#you-qr-results {
+    margin-bottom: 20px;
+}
+h1, h2 {
+    color: #FF8000;
+    text-align: center;
+}
+.button {
+    background-color: #FF8000;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+.button:hover {
+    background-color: #FF5500;
+}
