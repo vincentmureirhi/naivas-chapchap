@@ -1,23 +1,26 @@
-// functions/addProduct.js
-
-let products = [];  // Simple in-memory array to store products
+const { MongoClient } = require('mongodb');
 
 exports.handler = async function(event, context) {
-    const { name, code, price } = JSON.parse(event.body);
+    try {
+        const { name, code, price } = JSON.parse(event.body);
 
-    // Simple validation
-    if (!name || !code || !price) {
+        const client = new MongoClient('your-mongodb-connection-string', { useNewUrlParser: true, useUnifiedTopology: true });
+        await client.connect();
+        const db = client.db('supermarket');
+        const collection = db.collection('products');
+
+        const result = await collection.insertOne({ name, code, price });
+
+        await client.close();
+
         return {
-            statusCode: 400,
-            body: JSON.stringify({ error: 'Invalid product data' })
+            statusCode: 200,
+            body: JSON.stringify({ message: 'Product added successfully', result }),
+        };
+    } catch (error) {
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ message: 'Failed to add product', error }),
         };
     }
-
-    // Add the product to the array
-    products.push({ name, code, price });
-
-    return {
-        statusCode: 200,
-        body: JSON.stringify({ message: 'Product added successfully' })
-    };
 };

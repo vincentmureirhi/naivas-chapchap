@@ -1,20 +1,33 @@
-// functions/scanProduct.js
+const { MongoClient } = require('mongodb');
 
 exports.handler = async function(event, context) {
-    const { qrData } = JSON.parse(event.body);
+    try {
+        const { qrData } = JSON.parse(event.body);
 
-    // Search for the product in the array
-    const product = products.find(p => p.code === qrData);
+        const client = new MongoClient('your-mongodb-connection-string', { useNewUrlParser: true, useUnifiedTopology: true });
+        await client.connect();
+        const db = client.db('supermarket');
+        const collection = db.collection('products');
 
-    if (product) {
+        const product = await collection.findOne({ code: qrData });
+
+        await client.close();
+
+        if (product) {
+            return {
+                statusCode: 200,
+                body: JSON.stringify(product),
+            };
+        } else {
+            return {
+                statusCode: 404,
+                body: JSON.stringify({ message: 'Product not found' }),
+            };
+        }
+    } catch (error) {
         return {
-            statusCode: 200,
-            body: JSON.stringify(product)
-        };
-    } else {
-        return {
-            statusCode: 404,
-            body: JSON.stringify({ error: 'Product not found' })
+            statusCode: 500,
+            body: JSON.stringify({ message: 'Failed to retrieve product', error }),
         };
     }
 };
