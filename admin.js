@@ -5,7 +5,7 @@ document.getElementById('add-product-form').addEventListener('submit', async fun
     const code = document.getElementById('code').value;
     const price = document.getElementById('price').value;
 
-    const response = await fetch('http://localhost:3000/add-product', {
+    const response = await fetch('/.netlify/functions/addProduct', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

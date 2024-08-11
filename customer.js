@@ -17,7 +17,7 @@ domReady(function() {
             ++countResults;
             lastResult = decodeText;
 
-            const response = await fetch('http://localhost:3000/scan', {
+            const response = await fetch('/.netlify/functions/scanProduct', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
