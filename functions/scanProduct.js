@@ -1,8 +1,17 @@
-const products = [];
+const fs = require('fs');
+const path = './products.json';
 
 exports.handler = async function(event, context) {
-    const data = JSON.parse(event.body);
-    const { qrData } = data;
+    // Load existing products from file, if it exists
+    let products = [];
+    if (fs.existsSync(path)) {
+        const data = fs.readFileSync(path, 'utf8');
+        products = JSON.parse(data);
+    }
+
+    const { qrData } = JSON.parse(event.body);
+    
+    // Find the product based on the scanned code
     const product = products.find(p => p.code === qrData);
 
     if (product) {
