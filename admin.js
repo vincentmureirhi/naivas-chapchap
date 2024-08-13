@@ -6,7 +6,7 @@ document.getElementById('add-product-form').addEventListener('submit', async fun
     const price = document.getElementById('price').value;
 
     try {
-        const response = await fetch('/.netlify/functions/addProduct', {
+        const response = await fetch('/.netlify/functions/addProduct', {  // Update to use Netlify Function
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -17,7 +17,7 @@ document.getElementById('add-product-form').addEventListener('submit', async fun
         if (response.ok) {
             alert('Product added successfully');
         } else {
-            const errorText = await response.text(); // Capture error details
+            const errorText = await response.text();
             console.error('Failed to add product:', errorText);
             alert('Failed to add product');
         }

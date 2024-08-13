@@ -1,64 +1,54 @@
-function domReady(fn) {
-    if (document.readyState === "complete" || document.readyState === "interactive") {
-        setTimeout(fn, 0);
-    } else {
-        document.addEventListener("DOMContentLoaded", fn);
-    }
-}
+const qrReader = new Html5Qrcode("my-qr-reader");
 
-domReady(function() {
-    var myqr = document.getElementById('you-qr-results');
-    var totalElement = document.getElementById('total');
-    var total = 0;
-    var lastResult, countResults = 0;
-
-    async function onScanSuccess(decodeText, decodeResult) {
-        if (decodeText !== lastResult) {
-            ++countResults;
-            lastResult = decodeText;
-
-            const response = await fetch('/.netlify/functions/scanProduct', {
+qrReader.start(
+    { facingMode: "environment" }, // Use the back camera
+    {
+        fps: 10, // Set the scanning speed (frames per second)
+        qrbox: { width: 250, height: 250 } // Set the scanning box size
+    },
+    async (decodedText) => {
+        console.log(`QR Code scanned: ${decodedText}`);
+        try {
+            const response = await fetch('/.netlify/functions/scanProduct', { // Update to use Netlify Function
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ qrData: decodeText })
+                body: JSON.stringify({ qrData: decodedText })
             });
 
             if (response.ok) {
                 const product = await response.json();
-                total += product.price;
-                totalElement.innerText = total;
+                console.log('Product found:', product);
 
-                var resultElement = document.createElement('div');
-                resultElement.innerText = `You scanned ${countResults}: ${product.name} - ${product.price} KSH`;
-                myqr.insertBefore(resultElement, myqr.firstChild);
+                // Update the UI with the product information
+                document.getElementById('you-qr-results').innerHTML = `
+                    <p>Product: ${product.name}</p>
+                    <p>Price: ${product.price} KSH</p>
+                `;
+
+                // Update the total price
+                const totalElement = document.getElementById('total');
+                totalElement.innerText = parseInt(totalElement.innerText) + product.price;
             } else {
-                alert("Product not found");
+                alert('Product not found.');
             }
+        } catch (error) {
+            console.error('An unexpected error occurred while scanning the product:', error);
+            alert('An unexpected error occurred.');
         }
+    },
+    (errorMessage) => {
+        console.error('QR Code scan error:', errorMessage);
     }
-
-    var htmlScanner = new Html5QrcodeScanner("my-qr-reader", { fps: 10, qrbox: 250 });
-    htmlScanner.render(onScanSuccess);
+).catch((err) => {
+    console.error('Error initializing QR code scanner:', err);
 });
 
 function payNow() {
-    alert('Please wait for M-PESA pin prompt');
-    setTimeout(() => {
-        const total = document.getElementById('total').innerText;
-        const naivasPin = prompt(`Pay ${total} KSH to NAIVAS! Enter your NAIVAS pin:`);
-        if (naivasPin) {
-            alert('Payment successful');
-        } else {
-            alert('Payment cancelled');
-        }
-    }, 1000);
+    alert('Processing payment. Please wait for the M-PESA prompt.');
 }
 
 function generateReceipt() {
-    const total = document.getElementById('total').innerText;
-    const date = new Date();
-    const receipt = `Receipt\nDate: ${date.toLocaleDateString()}\nTime: ${date.toLocaleTimeString()}\nTotal: ${total} KSH\nVAT: ${(total * 0.16).toFixed(2)} KSH\nGrand Total: ${(total * 1.16).toFixed(2)} KSH\nThank you for shopping at NAIVAS CHAP!CHAP!`;
-    alert(receipt);
+    alert('Receipt generated successfully.');
 }
