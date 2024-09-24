@@ -1,50 +1,54 @@
-const express = require('express'); // Import Express framework
-const bodyParser = require('body-parser'); // Import body-parser to parse JSON in requests
-const path = require('path'); // Import path for file path management
+const express = require('express');
+const bodyParser = require('body-parser');
+const path = require('path');
 
-const app = express(); // Initialize Express app
-const port = process.env.PORT || 3000; // Set the port for the server, using PORT env variable or 3000
+const app = express();
+const port = process.env.PORT || 3000; // Render uses process.env.PORT
 
-app.use(bodyParser.json()); // Middleware to parse JSON bodies in requests
-app.use(express.static(__dirname)); // Serve static files like HTML, CSS from the root directory
+app.use(bodyParser.json());
 
-let products = []; // In-memory storage for products
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Route to add a new product (Admin adds products)
+// In-memory product storage
+let products = [];
+
+// Add product route (Admin adds products)
 app.post('/add-product', (req, res) => {
-    const { name, code, price } = req.body; // Extract product details from request body
-    products.push({ name, code, price }); // Add new product to the in-memory products array
-    res.status(201).send('Product added successfully'); // Send a success response
+    const { name, code, price } = req.body;
+    products.push({ name, code, price });
+    res.status(201).send('Product added successfully');
 });
 
-// Route to get all products (For debugging or product listings)
+// Get all products
 app.get('/products', (req, res) => {
-    res.json(products); // Respond with the full list of products in JSON format
+    res.json(products);
 });
 
-// Route to handle QR scan and return product details (Customer scans the product code)
+// QR scan route (Customer scans QR code)
 app.post('/scan', (req, res) => {
-    const { qrData } = req.body; // Extract the QR code data from the request body
-    const product = products.find(p => p.code === qrData); // Find the product by its code
+    const { qrData } = req.body;
+    const product = products.find(p => p.code === qrData);
     if (product) {
-        res.json(product); // If the product exists, return the product details
+        res.json(product);
     } else {
-        res.status(404).send('Product not found'); // If no product matches the code, return 404
+        res.status(404).send('Product not found');
     }
 });
 
-// Serve customer page (UI for customers to scan products)
+// Serve customer page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'customer.html')); // Serve the customer.html file
+    res.sendFile(path.join(__dirname, 'public', 'customer.html'));
 });
 
-// Serve admin page (UI for admins to add products)
+// Serve admin page
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html')); // Serve the admin.html file
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 // Start the server
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`); // Log that the server is running
+    console.log(`Server running at http://localhost:${port}`);
 });
+
 
